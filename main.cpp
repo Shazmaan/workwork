@@ -17,6 +17,9 @@ vector<string> nameVec;
 vector<string> typeVec;
 vector<string> emailVec;
 
+vector<string> SnameVec;
+vector<string> SemailVec;
+
 map<string,string> NameDate;
 map<string,string> EmailDate;
 map<string,string> NumberDate;
@@ -26,10 +29,30 @@ int main() {
     OutputFile.open("Output.csv");
 
     ifstream inFile("PayPal_List.csv");//change location based on location of file
+    ifstream SFile("Scholarship.csv");
+
     std::string name,type,email,date,number;
     getline(inFile,name);
 
+    string PName, GEmail;
+    getline(SFile, PName);
+
     OutputFile<<"Name,Type,Email,Date,Number\n";
+
+    if (SFile.is_open()) {
+        while(getline(SFile, PName)){
+            stringstream SS(PName);
+
+            getline(SS , PName , ',');
+            getline(SS , PName , ',');
+
+            getline(SS , GEmail , ',');
+            getline(SS , GEmail , ',');
+
+            SnameVec.push_back(PName);
+            SemailVec.push_back(GEmail);
+        }
+    }
 
     if (inFile.is_open()) {
         while(getline(inFile, name)){
@@ -95,6 +118,7 @@ int main() {
         }
     }
     OutputFile.close();
+    SFile.close();
     inFile.close();
     RegisteredUsers();
     return 0;
@@ -160,17 +184,26 @@ void RegisteredUsers() {
             bool Scheck= (find(NameNumber.begin(),NameNumber.end(),"\""+SecNumber+"\"")!=NameNumber.end());
             bool Ccheck= (find(nameVec.begin(), nameVec.end(), SecContact) != nameVec.end());
 
+            bool SchPcheck= (find(SnameVec.begin(), SnameVec.end(), Parent) != SnameVec.end());
+            bool SchEcheck= (find(SemailVec.begin(), SemailVec.end(), Email) != SemailVec.end());
+
+
 //            cout<<"Parent : "<<Parent<<" Secondary Number : "<<SecNumber<<" Scheck : "<<Scheck<<endl;
 //            cout<<"-----------------------------"<<endl;
 
-            if (Pcheck || Echeck || Ncheck || Scheck || Ccheck) {
+            if (Pcheck || Echeck || Ncheck || Scheck || Ccheck || SchPcheck || SchEcheck) {
                 OutputFile << RowData + ",Yes,";
                 if(Pcheck){
 //                    cout<<"Pcheck "<<endl;
                     OutputFile<<NameDate[Parent]+"\n";
+                }else if(SchPcheck){
+//                    cout<<"IN"<<endl;
+                    OutputFile<<"Scholarship Applicant\n";
                 }else if(Echeck){
 //                    cout<<"Echeck "<<endl;
                     OutputFile<<EmailDate[Email]+"\n";
+                }else if(SchEcheck){
+                    OutputFile<<"Scholarship Applicant\n";
                 }else if(Ncheck){
 //                    cout<<"Ncheck "<<endl;
                     OutputFile<<NumberDate["\""+Number+"\""]+"\n";
